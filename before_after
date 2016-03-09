@@ -1,0 +1,30 @@
+{{Map
+|param1 = value1
+|param2=value2
+|param3
+|param4=
+|nested1 = {{ru|Тарту}}
+|nested2 = {{ru|1=СССР}}
+}}
+
+template = {
+"param1" =>"value1",
+"param2" =>"value2",
+"param3" => nil,
+"param4" => nil,
+"nested2" => {"ru" => "Tapty"},
+"nested1"=> {"ru"=> nil, "1" => "CCCP"}
+}
+
+"abcdefgh".each_char.each_cons(2){|c, nc| p c;p nc}
+
+string = "{{Map
+|param1 = value1
+|param2=value2
+|param3
+|param4=
+|nested1 = {{ru|Тарту}}
+|nested2 = {{ru|1=СССР}}
+}}"
+
+
