@@ -26,7 +26,7 @@ div class='asccas'>
 |param1 = value1
 |param2=value2
 |param3
-|param4=
+|param4=345.0/789.0
 |nested1 = {{ru|Тарту}}
 |nested2 = {{ru|1=СССР}}
 }}"
@@ -37,12 +37,10 @@ def change_template(str, bbox)
   new_attrs = []
   map_template_attrs = []
   
-  #bbox_array  = bbox.split(",").map{|s| s.to_f.round(7)}
-#  longitude = "#{bbox_array[0]}/#{bbox_array[2]}"
-  #latitude = "#{bbox_array[1]}/#{bbox_array[3]}"
-  longitude = "123"
-  latitude = "345"
-  
+  bbox_array  = bbox.split(",").map{|s| s.to_f.round(7)}
+  longitude = "#{bbox_array[0]}/#{bbox_array[2]}"
+  latitude = "#{bbox_array[1]}/#{bbox_array[3]}"
+
   something_changed  = nil
           
   map_attrs.each do | map_attr |
@@ -139,7 +137,7 @@ if map_template && template_end_index
 
   puts map_template_string
   
-  bbox = "1232,123123312312,123132"
+  bbox = "123,345,567,789"
   new_template = change_template(map_template_string, bbox)
   
   if new_template 
