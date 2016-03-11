@@ -34,6 +34,7 @@ div class='asccas'>
 
 def change_template(str, bbox)
   map_attrs = str.split("|")
+
   new_attrs = []
   map_template_attrs = []
   
@@ -41,28 +42,29 @@ def change_template(str, bbox)
   longitude = "#{bbox_array[0]}/#{bbox_array[2]}"
   latitude = "#{bbox_array[1]}/#{bbox_array[3]}"
 
-  something_changed  = nil
+  something_changed  = false
           
   map_attrs.each do | map_attr |
 
     if map_attr.split("=").size == 2 && !map_attr.include?("<!--")
-
-      if map_attr.include? "warped"
-        unless map_attr.split("=")[1].include?("yes")  # don't edit if it's already there
+      key, value = map_attr.split("=")
+      
+      if key.include? "warped"
+        unless value.include?("yes")  # don't edit if it's already there
           something_changed = true
           map_attr = "warped=yes\n"
         end    
       end
 
-      if map_attr.include? "latitude"
-        if map_attr.split("=")[1].strip != latitude
+      if key.include? "latitude"
+        if value.strip != latitude
           something_changed = true
           map_attr = "latitude=#{latitude}\n"  
         end
       end
       
-      if map_attr.include? "longitude"
-        if map_attr.split("=")[1].strip != longitude
+      if key.include? "longitude"
+        if value.strip != longitude
           something_changed = true
           map_attr = "longitude=#{longitude}\n"  
         end
@@ -96,7 +98,7 @@ end
 # returns the index of the end of the first template in the passed in string 
 # will return false if no ending characters can be determined
 #
-def end_index_template(str)
+def find_end_index(str)
   
   open_bracket = ["{", "{"]
   close_bracket = ["}", "}"]
@@ -111,7 +113,7 @@ def end_index_template(str)
       if stack.empty?
         puts "end of template"
         puts "index " + index.to_s
-        end_index = index
+        end_index = index + 1
         return end_index
       end
     end
@@ -127,26 +129,24 @@ template_end_index  = nil
 puts "start in string = " + string_start_index.to_s
 if map_match
   map_template = map_match[0]
-  template_end_index = end_index_template(map_template)
+  template_end_index = find_end_index(map_template)
 end
+string_stop_index = string_start_index+template_end_index
 
 if map_template && template_end_index
-  puts "end index in template = "+template_end_index.to_s
 
-  map_template_string =  string[string_start_index..(string_start_index+template_end_index)]
+  map_template_string =  string[string_start_index..(string_stop_index)]
 
-  puts map_template_string
-  
   bbox = "123,345,567,789"
   new_template = change_template(map_template_string, bbox)
-  
+  puts new_template.inspect
   if new_template 
-    string[string_start_index..(string_start_index+template_end_index+1)] = new_template
+    string[string_start_index..(string_stop_index+1)] = new_template
     puts "changing"
   else
     puts "nothing changed"
   end
   
-  puts "string"
+  puts "full string"
   puts string
 end
