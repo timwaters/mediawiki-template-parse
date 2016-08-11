@@ -1,39 +1,55 @@
-string = "
-div class='asccas'>
-            <span class='ascascasc'>collect!                   &rarr; Enumerator</span>
-            
-          </div>
-{Other
-|param1 = value1
-|param2=value2
-|param3
-|param4=
-|nested1 = {{ru|Тарту}}
-|nested2 = {{ru|1=СССР}}
-}} 
+string  = "
+=={{int:filedesc}}==
 
 {{Map
-|param1 = value1
-|latitude=345
-|param3
-|param4=
-|nested1 = {{ru|Тарту}}
-|nested2 = {{ru|1=СССР}}
+|title=Map of England from new systeme of the mathematicks, Mass
+|author=Flamsteed, John 
+|date=1681
+|source=[http://digitalcollections.nypl.org/items/510d47e1-ceb9-a3d9-e040-e00a18064a99 NYPL Repo]
+|location=England, Europe
+|scale=10632
+|institution={{Institution:New York Public Library}}
+|dimensions={{Size|cm|87|70}}
+}}
+
+"
+
+string2  = "
+
+{{Map
+|title=Map of England from new systeme of the mathematicks, Mass
+|author=Flamsteed, John 
+|date=1681
+|source=[http://digitalcollections.nypl.org/items/510d47e1-ceb9-a3d9-e040-e00a18064a99 NYPL Repo]
+|location=England, Europe
+|scale=10632
+|institution=3
+|dimensions=2
+}}
+
+"
+
+string3 = "
+=={{int:filedesc}}==
+
+foo
+
+{{
+  
+  Map|title=Map of England from new systeme of the mathematicks, Mass
 }}
 
 
-{{Another
-|param1 = value1
-|param2=value2
-|param3
-|param4=345.0/789.0
-|nested1 = {{ru|Тарту}}
-|nested2 = {{ru|1=СССР}}
-}}"
+#equals
+#inner template
+"
+
 
 
 def change_template(str, bbox)
   map_attrs = str.split("|")
+  puts  "  map_attrs = str.split('|')"
+puts map_attrs.inspect
 
   new_attrs = []
   map_template_attrs = []
@@ -45,7 +61,6 @@ def change_template(str, bbox)
   something_changed  = false
           
   map_attrs.each do | map_attr |
-
     if map_attr.split("=").size == 2 && !map_attr.include?("<!--")
       key, value = map_attr.split("=")
       
@@ -78,16 +93,30 @@ def change_template(str, bbox)
     
   end
   
-  #if it has help warp but no warped, we have to add in warped
-  if map_template_attrs.any? { | s| (s.include?("help warp") or s.include?("help_warp"))} && map_template_attrs.none? {|s| s.include? "warped"}
+
+  if map_template_attrs.none? {|s| (s.include? "warp status") || (s.include? "Warp status") || (s.include? "warp_status") || (s.include? "Warp_status")}
     something_changed = true
-    new_attrs.insert(2, "warped=yes\n")
+    insert_at = new_attrs.size# >= 1 ? new_attrs.size  : 0
+    new_attrs.insert(insert_at, "warp_status=warped\n")
+  end
+  
+  if map_template_attrs.none? {|s| (s.include? "latitude") || (s.include? "Latitude") }
+    something_changed = true
+    insert_at = new_attrs.size# >= 1 ? new_attrs.size  : 0
+    new_attrs.insert(insert_at, "latitude=#{latitude}\n" )
+  end
+  
+  if map_template_attrs.none? {|s| (s.include? "longitude") || (s.include? "Longitude") }
+    something_changed = true
+    insert_at = new_attrs.size #>= 1 ? new_attrs.size  : 0
+    new_attrs.insert(insert_at, "longitude=#{longitude}\n")
   end
   
   map_template = new_attrs.join("|")
 
   if something_changed
-    return map_template
+    
+    return "{{"+ map_template+ "}}"
   else
     return nil
   end
@@ -126,7 +155,7 @@ end
 map_match = /\{{2}\s*(Map|Template:map)(.*)}}/mi.match(string)
 string_start_index = string.index(/\{{2}\s*(Map|Template:map)(.*)}}/mi)
 template_end_index  = nil
-puts "start in string = " + string_start_index.to_s
+
 if map_match
   map_template = map_match[0]
   template_end_index = find_end_index(map_template)
@@ -136,10 +165,18 @@ string_stop_index = string_start_index+template_end_index
 if map_template && template_end_index
 
   map_template_string =  string[string_start_index..(string_stop_index)]
+puts "mpa template string="
+puts map_template_string
+puts " - "
+trimmed = map_template_string.chomp[2..-3].lstrip
+puts "trimmed"
+puts trimmed
+puts " - "
 
   bbox = "123,345,567,789"
-  new_template = change_template(map_template_string, bbox)
-  puts new_template.inspect
+  new_template = change_template(trimmed, bbox)
+  puts new_template
+  puts "---"
   if new_template 
     string[string_start_index..(string_stop_index+1)] = new_template
     puts "changing"
